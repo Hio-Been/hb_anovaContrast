@@ -6,7 +6,6 @@ function [pval, ci] = hb_anovaContrast(dataset, cont_coeffs, alpha)
 % 
 % written by Hio-Been Han, for GOSHIMTONG 2016-1, YONSEI PSYCHOLOGY
 % hiobeen@yonsei.ac.kr, 20160420
-
 if nargin < 3
     alpha = .05;
 end
@@ -22,6 +21,7 @@ if ~iscell(dataset) % Same N for each condition
     for i = 1:nCond
         dat{1,i} = dataset(:,i);
     end
+    % anova1(dat)
 else % Generalization for Different N in each condition
     dat = dataset;
     nCond = size(dat, 2);
@@ -36,11 +36,15 @@ end
 Ns = nan([1, nCond]);
 Ms = nan([1, nCond]);
 Ss = nan([1, nCond]);
+dat_for_anovaN =[];
 for i = 1:nCond
     Ns(i) = length(dat{1,i});
     Ms(i) = mean(dat{1,i});
     Ss(i) = std(dat{1,i},0);
     disp([ 'cond ' num2str(i) '_N: ' num2str(Ns(i)) ', M : ' num2str(Ms(i)) ', S : ' num2str(Ss(i))]);
+    for i2 = 1:Ns(i)
+        dat_for_anovaN = [dat_for_anovaN; [dat{1,i}(i2) ,i ]];
+    end
 end
 
 %% Sp
@@ -75,6 +79,10 @@ else
     result_txt = 'Null result'
 end
 disp([ result_txt ', t(' num2str(df) ') = ' num2str(t_stat) ', p = ' num2str(pval) ]);
+
+%% Optional : Multiple comparisons
+% [p,table,stats,terms]=anovan(dat_for_anovaN(:,1), dat_for_anovaN(:,2), 'model', 'interaction', 'display', 'on');
+% [c,m,h,nms] = multcompare(stats); open c;
 
 return
 
